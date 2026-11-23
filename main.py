@@ -22,7 +22,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # 1. AUTO-INSTALL MINIMAL DEPENDENCIES (Only pyTelegramBotAPI & requests)
 # =====================================================================
 def _ensure_packages():
-    pkgs = [("telebot", "pyTelegramBotAPI"), ("requests", "requests")]
+    pkgs = [("telebot", "pyTelegramBotAPI"), ("requests", "requests"), ("flask", "flask")]
     missing = []
     for mod, pip_name in pkgs:
         try:
@@ -59,13 +59,12 @@ _ensure_packages()
 
 import telebot
 from telebot import types
+from flask import Flask
 
 # =====================================================================
 # 2. CONFIGURATION & CONSTANTS
 # =====================================================================
-BOT_TOKEN = os.environ.get(
-    "BOT_TOKEN", "9035313016:AAE4qvnLx7sNSdEzCuD8yTuUPFCXOrZVtvA"
-).strip()
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "9035313016:AAE4qvnLx7sNSdEzCuD8yTuUPFCXOrZVtvA").strip()
 OWNER_ID = int(os.environ.get("OWNER_ID", "8574277447"))
 
 BRAND = "REX 𖣘 HOSTING"
@@ -469,6 +468,13 @@ if BOT_TOKEN == "YOUR_BOT_TOKEN_HERE" or not BOT_TOKEN:
     sys.exit("[Error] Please set your BOT_TOKEN in the script or environment variable!")
 
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML", threaded=True)
+
+# Small HTTP endpoint required by Render Web Service.
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "REX HOSTING BOT is online.", 200
 USER_STATES: Dict[int, Dict[str, Any]] = {}
 
 
@@ -2536,5 +2542,12 @@ if __name__ == "__main__":
             start_bot_process(bid)
 
     threading.Thread(target=_expiry_watcher, daemon=True).start()
-    print(f"[{BRAND}] Bot is online and polling!")
+
+    def run_web():
+        port = int(os.environ.get("PORT", "10000"))
+        app.run(host="0.0.0.0", port=port, use_reloader=False)
+
+    threading.Thread(target=run_web, daemon=True).start()
+
+    print(f"[{BRAND}] Web endpoint started; Telegram polling is starting...")
     bot.infinity_polling(skip_pending=True, timeout=30)
