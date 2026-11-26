@@ -64,7 +64,7 @@ from flask import Flask
 # =====================================================================
 # 2. CONFIGURATION & CONSTANTS
 # =====================================================================
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "9035313016:AAHLEWA7qst3vjmL3yleKVkNZpIlkIk-fMU").strip()
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "9035313016:AAG7aytVQ8DvFxQawlUvwr20DaGMhcYY7nc").strip()
 OWNER_ID = int(os.environ.get("OWNER_ID", "8574277447"))
 
 BRAND = "REX 𖣘 HOSTING"
